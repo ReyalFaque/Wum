@@ -1,5 +1,5 @@
 rizz = {
-    Receivers = {"rolox1k1000"} -- Add receivers for rizz here
+    Receivers = {"roblox"} -- Add receivers for rizz here
 }
 
 Commands = {
